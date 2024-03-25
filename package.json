@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "env-cmd -f .env nodemon index.js"
+    "start": "env-cmd -f .env nodemon index.js",
+    "dev": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
