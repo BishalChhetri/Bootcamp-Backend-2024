@@ -32,9 +32,9 @@ router.post(
     const { name, email, password, image, role, googleSignIn } = req.body;
     let user;
     if (googleSignIn && googleSignIn === "True") {
-      user = await User.create({ name, email, image });
+      user = await User.create({ name, email: email.toLowerCase(), image });
     } else {
-      user = await User.create({ name, email, password });
+      user = await User.create({ name, email: email.toLowerCase(), password });
     }
     sendTokenResponse(user, 200, res);
   })
@@ -43,7 +43,20 @@ router.post(
 router.post(
   "/login",
   asyncHandler(async (req, res, next) => {
-    const { email, password } = req.body;
+    const { email, password, image, googleSignIn } = req.body;
+
+    if (googleSignIn) {
+      let user = await User.findOne({ email: email.toLowerCase() });
+      if (image.length !== 0) {
+        user = await User.findOneAndUpdate(
+          { email: email.toLowerCase() },
+          { $set: { image } },
+          { new: true }
+        );
+      }
+      sendTokenResponse(user, 200, res);
+      return;
+    }
 
     if (!email || !password) {
       return next(
@@ -51,8 +64,9 @@ router.post(
       );
     }
 
-    let user = await User.findOne({ email }).select("+password");
-
+    let user = await User.findOne({ email: email.toLowerCase() }).select(
+      "+password"
+    );
     if (!user) {
       return next(new ErrorResponse(`Invalid credentials`, 401));
     }
@@ -61,7 +75,7 @@ router.post(
     if (!isMatch) {
       return next(new ErrorResponse(`Invalid credentials`, 401));
     }
-    user = await User.findOne({ email });
+    user = await User.findOne({ email: email.toLowerCase() });
 
     sendTokenResponse(user, 200, res);
   })
