@@ -13,12 +13,11 @@ router.get(
   "/user/:email",
   asyncHandler(async (req, res, next) => {
     const user = await User.findOne({ email: req.params.email.toLowerCase() });
-
     if (!user) {
       // next(new ErrorResponse(`Invalid Credentials`, 401));
       return res.status(200).json({
         isEmail: "False",
-        message: "This email is not regestired yet!",
+        message: "This email is not registered yet!",
       });
     }
 

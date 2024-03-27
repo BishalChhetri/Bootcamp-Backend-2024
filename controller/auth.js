@@ -32,7 +32,12 @@ router.post(
     const { name, email, password, image, role, googleSignIn } = req.body;
     let user;
     if (googleSignIn && googleSignIn === "True") {
-      user = await User.create({ name, email: email.toLowerCase(), image });
+      user = await User.create({
+        name,
+        email: email.toLowerCase(),
+        image,
+        isThirdPartySignIn: true,
+      });
     } else {
       user = await User.create({ name, email: email.toLowerCase(), password });
     }
@@ -133,12 +138,25 @@ router.put(
   asyncHandler(async (req, res, next) => {
     try {
       const user = await User.findById(req.user.id).select("+password");
+    
+      if (!user) {
+        return next(new ErrorResponse("Invalid Credentials!", 401));
+      }
 
-      if (!(await user.matchPassword(req.body.currentPassword))) {
+      if (!user?.isThirdPartySignIn && !req.body.currentPassword) {
+        return next(new ErrorResponse("Password is incorrect", 401));
+      }
+
+      if (
+        !user?.isThirdPartySignIn &&
+        req.body.currentPassword &&
+        !(await user.matchPassword(req.body.currentPassword))
+      ) {
         return next(new ErrorResponse("Password is incorrect", 401));
       }
 
       user.password = req.body.newPassword;
+      user.isThirdPartySignIn = false;
 
       await user.save();
 

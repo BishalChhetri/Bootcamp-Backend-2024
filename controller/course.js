@@ -130,7 +130,10 @@ router.post(
       );
     }
     // Make Sure owner of the course is current user
-    if (bootcamp.user !== req.user.id && req.user.role !== "admin") {
+    if (
+      bootcamp[0].user.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
       return next(
         new ErrorResponse(
           `The user ${req.user.id} is not authorised to add course in this bootcamp`,

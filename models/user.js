@@ -20,6 +20,10 @@ const userschema = new mongoose.Schema({
     minlength: 6,
     select: false,
   },
+  isThirdPartySignIn: {
+    type: Boolean,
+    default: false,
+  },
   image: { type: String, default: "/images/placeholder.jpg" },
   resetPasswordToken: String,
   resetPasswordExpire: Date,

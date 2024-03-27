@@ -48,6 +48,7 @@ router.get(
       const id = req.params.id;
       const bootcamps = await Bootcamp.find({ user: id })
         .lean()
+        .populate({ path: "user", select: "name image" })
         .populate("courses")
         .populate("reviews");
 
