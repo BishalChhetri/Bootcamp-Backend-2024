@@ -25,7 +25,8 @@ git clone https://github.com/BishalChhetri/Bootcamp-Backend-2024.git
 cd Bootcamp-Backend-2024
 ```
 4. Update the environmental variables:
-5. Install dependencies using npm:
+   
+6. Install dependencies using npm:
 ```bash
 npm install
 ```
