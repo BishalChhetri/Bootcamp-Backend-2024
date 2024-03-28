@@ -21,9 +21,11 @@ To get started with the project, follow these steps:
 git clone https://github.com/BishalChhetri/Bootcamp-Backend-2024.git
 ```
 2. Navigate into the project directory:
+```bash
 cd Bootcamp-Backend-2024
-3. Update the environmental variables:
-4. Install dependencies using npm:
+```
+4. Update the environmental variables:
+5. Install dependencies using npm:
 ```bash
 npm install
 ```
