@@ -1,23 +1,29 @@
-const postmark = require("postmark");
-
-const client = new postmark.Client(process.env.POSTMARK_API_KEY);
+const emailjs = require("@emailjs/nodejs");
 
 const sendEmail = (options) => {
-  client.sendEmail(
-    {
-      From: process.env.FROM_EMAIL,
-      To: options.To,
-      Subject: options.Subject,
-      TextBody: options.TextBody,
-    },
-    function (error, result) {
-      if (error) {
-        console.error("Unable to send email " + error.message);
-        return;
+  emailjs
+    .send(
+      process.env.EMAILJS_SERVICE_ID,
+      process.env.EMAILJS_TEMPLATE_ID,
+      {
+        name: options?.name,
+        link: options?.link,
+        email: options?.email,
+      },
+      {
+        publicKey: process.env.EMAILJS_PUBLIC_KEY,
+        privateKey: process.env.EMAILJS_PRIVATE_KEY,
       }
-      console.info("Sent to postmark for delivery", result);
-    }
-  );
+    )
+    .then(
+      (result) => {
+        console.info("Email Sent for delivery");
+      },
+      (error) => {
+        console.log(error);
+        console.error("Unable to send email " + error.message);
+      }
+    );
 };
 
 module.exports = {

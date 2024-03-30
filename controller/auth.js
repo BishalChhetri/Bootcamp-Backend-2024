@@ -138,7 +138,7 @@ router.put(
   asyncHandler(async (req, res, next) => {
     try {
       const user = await User.findById(req.user.id).select("+password");
-    
+
       if (!user) {
         return next(new ErrorResponse("Invalid Credentials!", 401));
       }
@@ -169,7 +169,6 @@ router.put(
 
 router.post(
   "/forgotPassword",
-  protect,
   asyncHandler(async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
 
@@ -183,16 +182,13 @@ router.post(
 
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/auth/resetPassword/${resetToken}`;
-    const message = `You are receiving this email because you (or someone else) has reuested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
 
     try {
       await sendEmail({
-        To: user.email,
-        Subject: "Password reset token",
-        TextBody: message,
+        name: user?.name,
+        email: user?.email,
+        link: resetUrl,
       });
       res.status(200).json({ success: true, data: "Email sent" });
     } catch (e) {
@@ -200,6 +196,28 @@ router.post(
       user.resetPasswordExpire = undefined;
       return next(new ErrorResponse(`Email could not be sent`, 500));
     }
+  })
+);
+
+router.get(
+  "/isValidToken/:resettoken",
+  asyncHandler(async (req, res, next) => {
+    const resetToken = req.params.resettoken;
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return next(new ErrorResponse(`Invalid Token`, 400));
+    }
+
+    res.status(200).json({ success: true, isValid: true });
   })
 );
 
@@ -216,7 +234,7 @@ router.put(
       resetPasswordToken,
       resetPasswordExpire: { $gt: Date.now() },
     });
-
+    
     if (!user) {
       return next(new ErrorResponse(`Invalid Token`, 400));
     }
