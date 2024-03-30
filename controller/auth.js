@@ -170,7 +170,7 @@ router.put(
 router.post(
   "/forgotPassword",
   asyncHandler(async (req, res, next) => {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email.toLowerCase() });
 
     if (!user) {
       return next(
@@ -234,7 +234,7 @@ router.put(
       resetPasswordToken,
       resetPasswordExpire: { $gt: Date.now() },
     });
-    
+
     if (!user) {
       return next(new ErrorResponse(`Invalid Token`, 400));
     }
